@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Birthday!</title>
+<style>
+  :root{
+    --pink:#ff5fa2; --purple:#7c4dff; --yellow:#ffd23f; --blue:#35c4ff; --green:#3ddc97;
+    --ink:#2b2250; --card:#ffffffee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Trebuchet MS","Segoe UI",sans-serif;color:var(--ink);min-height:100vh;
+    background:linear-gradient(135deg,#ffe0f0,#e3d9ff 50%,#d4f4ff);
+    overflow-x:hidden;
+  }
+  /* bunting */
+  .bunting{position:fixed;top:0;left:0;width:100%;height:64px;display:flex;z-index:5;pointer-events:none}
+  .bunting span{flex:1;height:100%;clip-path:polygon(0 0,100% 0,50% 100%);opacity:.9}
+  .float-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .float-deco i{position:absolute;bottom:-60px;font-style:normal;animation:rise linear infinite;opacity:.7}
+  @keyframes rise{to{transform:translateY(-120vh) rotate(360deg)}}
+  main{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:84px 16px 40px;text-align:center}
+  h1{font-size:clamp(2rem,7vw,3.4rem);color:var(--purple);text-shadow:3px 3px 0 #fff;line-height:1.1}
+  h1 .name{color:var(--pink)}
+  .sub{margin-top:8px;font-size:1.05rem}
+  .card{background:var(--card);border-radius:24px;padding:22px 18px;margin-top:20px;
+    box-shadow:0 10px 30px #7c4dff30;border:3px dashed #ffb3d6}
+  .btn{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;border:0;border-radius:50px;
+    padding:12px 28px;font-size:1.05rem;font-weight:bold;cursor:pointer;box-shadow:0 6px 0 #4b2db8;transition:.1s}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #4b2db8}
+  .btn.small{padding:8px 16px;font-size:.9rem;box-shadow:0 4px 0 #4b2db8}
+  .hidden{display:none!important}
+
+  /* photo */
+  .photo-wrap{margin:18px auto 0;width:170px;height:170px;border-radius:50%;border:6px solid #fff;
+    box-shadow:0 0 0 5px var(--yellow),0 10px 25px #0003;overflow:hidden;background:#fff4;position:relative;
+    display:flex;align-items:center;justify-content:center;font-size:4rem;animation:bob 3s ease-in-out infinite}
+  .photo-wrap img{width:100%;height:100%;object-fit:cover}
+  .crown{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:2rem;z-index:3}
+  @keyframes bob{50%{transform:translateY(-8px)}}
+  .photo-btn{margin-top:12px}
+
+  /* progress */
+  .progress{display:flex;gap:8px;justify-content:center;margin-top:18px}
+  .dot{width:42px;height:42px;border-radius:50%;background:#fff;border:3px solid #cfc3ff;display:flex;
+    align-items:center;justify-content:center;font-weight:bold;transition:.3s}
+  .dot.active{background:var(--yellow);border-color:var(--pink);transform:scale(1.15)}
+  .dot.done{background:var(--green);border-color:#1fa971;color:#fff}
+
+  .level-title{font-size:1.6rem;color:var(--purple);margin-bottom:6px}
+  .task{margin-bottom:12px;font-size:1.05rem}
+  .score{font-weight:bold;color:var(--pink);margin-bottom:8px}
+
+  /* L1 balloons */
+  #sky{position:relative;height:340px;border-radius:18px;overflow:hidden;
+    background:linear-gradient(#bfe9ff,#fff);border:2px solid #fff}
+  .balloon{position:absolute;bottom:-90px;width:58px;height:72px;border-radius:50% 50% 48% 48%;cursor:pointer;
+    animation:fly linear forwards;box-shadow:inset -8px -8px 0 #0002;user-select:none}
+  .balloon::after{content:"";position:absolute;bottom:-14px;left:50%;width:2px;height:16px;background:#0006}
+  @keyframes fly{to{bottom:370px}}
+  .pop{animation:none!important;transform:scale(1.8);opacity:0;transition:.2s}
+
+  /* L2 memory */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:380px;margin:0 auto}
+  .mcard{aspect-ratio:1;perspective:600px;cursor:pointer}
+  .mcard div{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:.4s}
+  .mcard.flip div{transform:rotateY(180deg)}
+  .mcard b{position:absolute;inset:0;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    backface-visibility:hidden;font-size:2rem}
+  .mcard .front{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff}
+  .mcard .back{background:#fff;transform:rotateY(180deg);border:3px solid var(--yellow)}
+  .mcard.matched .back{background:#d9ffe9;border-color:var(--green)}
+
+  /* L3 quiz */
+  .opts{display:grid;gap:10px;max-width:420px;margin:12px auto 0}
+  .opt{background:#fff;border:3px solid #cfc3ff;border-radius:14px;padding:12px;font-size:1rem;cursor:pointer;font-weight:bold}
+  .opt:hover{border-color:var(--pink)}
+  .opt.right{background:#d9ffe9;border-color:var(--green)}
+  .opt.wrong{background:#ffe0e0;border-color:#ff6b6b;animation:shake .3s}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+  /* L4 cake */
+  .cake{position:relative;width:240px;margin:50px auto 10px}
+  .layer{height:50px;border-radius:12px}
+  .l1{background:#ff9ec7;width:100%;border-bottom:6px solid #fff}
+  .l2{background:#ffd9a0;width:80%;margin:0 auto;border-bottom:6px solid #fff}
+  .l3{background:#c8a8ff;width:60%;margin:0 auto}
+  .candles{position:absolute;top:-40px;left:0;width:100%;display:flex;justify-content:center;gap:18px}
+  .candle{width:12px;height:40px;background:repeating-linear-gradient(45deg,#fff,#fff 6px,var(--pink) 6px,var(--pink) 12px);
+    border-radius:3px;position:relative;cursor:pointer}
+  .flame{position:absolute;top:-22px;left:-4px;font-size:1.3rem;transition:.2s;filter:grayscale(1) brightness(.5);opacity:.5}
+  .candle.lit .flame{filter:none;opacity:1;animation:flick .3s infinite alternate}
+  .candle.out .flame{opacity:0;transform:scale(0)}
+  @keyframes flick{to{transform:scale(1.15) rotate(5deg)}}
+
+  /* finale */
+  .wishes{display:grid;gap:12px;margin-top:14px}
+  .wish{background:#fff;border-left:8px solid var(--pink);border-radius:14px;padding:12px 14px;text-align:left;
+    animation:pop .5s backwards}
+  @keyframes pop{from{opacity:0;transform:scale(.7) translateY(20px)}}
+  .note{background:#fffbe0;border-radius:6px;padding:20px;margin-top:16px;text-align:left;line-height:1.6;
+    box-shadow:3px 5px 14px #0003;transform:rotate(-1deg);font-family:"Comic Sans MS","Segoe Print",cursive;white-space:pre-line}
+  .note h3{margin-bottom:8px;color:var(--pink)}
+  canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+  footer{margin-top:24px;font-size:.9rem;opacity:.7}
+</style>
+</head>
+<body>
+<div class="bunting" id="bunting"></div>
+<div class="float-deco" id="deco"></div>
+<canvas id="confetti"></canvas>
+
+<main>
+  <h1>🎉 Happy Birthday <span class="name" id="nameH">Friend</span>! 🎂</h1>
+  <p class="sub" id="subtitle"></p>
+
+  <div class="photo-wrap" id="photoWrap">
+    <span class="crown">👑</span>
+    <img src="image.png" alt="Birthday star" onerror="this.remove();document.getElementById('photoFallback').style.display='block'">
+    <span id="photoFallback" style="display:none">🥳</span>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <!-- START -->
+  <section class="card" id="start">
+    <h2 class="level-title">A little birthday adventure 🎁</h2>
+    <p class="task">Complete <b>4 fun levels</b> to unlock your special birthday surprise!</p>
+    <button class="btn" id="startBtn">Start Level 1 🚀</button>
+  </section>
+
+  <!-- LEVEL 1 -->
+  <section class="card hidden" id="lvl1">
+    <h2 class="level-title">Level 1: Pop the Balloons 🎈</h2>
+    <p class="task">Pop <b>10 balloons</b> before they fly away!</p>
+    <div class="score">Popped: <span id="popCount">0</span> / 10</div>
+    <div id="sky"></div>
+  </section>
+
+  <!-- LEVEL 2 -->
+  <section class="card hidden" id="lvl2">
+    <h2 class="level-title">Level 2: Memory Match 🧠</h2>
+    <p class="task">Find all the matching pairs!</p>
+    <div class="score">Matched: <span id="pairCount">0</span> / 6</div>
+    <div class="grid" id="memGrid"></div>
+  </section>
+
+  <!-- LEVEL 3 -->
+  <section class="card hidden" id="lvl3">
+    <h2 class="level-title">Level 3: Birthday Quiz ❓</h2>
+    <p class="task" id="qText"></p>
+    <div class="score">Question <span id="qNum">1</span> / <span id="qTotal">3</span></div>
+    <div class="opts" id="qOpts"></div>
+  </section>
+
+  <!-- LEVEL 4 -->
+  <section class="card hidden" id="lvl4">
+    <h2 class="level-title">Level 4: Light &amp; Blow the Candles 🕯️</h2>
+    <p class="task" id="candleTask">Tap each candle to light it!</p>
+    <div class="cake">
+      <div class="candles" id="candles"></div>
+      <div class="layer l3"></div><div class="layer l2"></div><div class="layer l1"></div>
+    </div>
+    <button class="btn hidden" id="blowBtn">💨 Blow &amp; Make a Wish!</button>
+  </section>
+
+  <!-- FINALE -->
+  <section class="card hidden" id="finale">
+    <h2 class="level-title">🎊 All Levels Complete! 🎊</h2>
+    <p class="task">You unlocked the birthday surprise!</p>
+    <div class="wishes" id="wishes"></div>
+    <div class="note" id="note"></div>
+    <br>
+    <button class="btn" id="againBtn">🔁 Play again</button>
+    <button class="btn" id="boomBtn">🎆 More confetti!</button>
+  </section>
+
+  <footer id="footer"></footer>
+</main>
+
+<script>
+/* ============ EDIT THESE ============ */
+const CONFIG = {
+  friendName: "Aditya",
+  yourName: "Your Friend",
+  subtitle: "Today is all about YOU. Let's celebrate! 🥳",
+  wishes: [
+    "🌟 May this year bring you everything your heart desires!",
+    "😄 Wishing you endless laughter, joy and amazing memories.",
+    "💪 May all your dreams come true and every goal be achieved.",
+    "❤️ Thank you for being such a wonderful friend. You're the best!",
+    "🍰 Eat lots of cake today – calories don't count on birthdays!"
+  ],
+  note:
+`Dear friend,
+
+Life is better with a friend like you.
+Thank you for every laugh, every talk and every memory we share.
+I hope this year is full of happiness, success and surprises.
+Stay awesome, always!
+
+Happy Birthday! 🎂`,
+  // quiz: edit the questions about your friend. "answer" is the index (0-based) of the correct option
+  quiz: [
+    { q: "What is the best part of a birthday?", options: ["Cake 🍰", "Gifts 🎁", "Friends 🥰", "All of the above 🎉"], answer: 3 },
+    { q: "Who is the coolest person today?", options: ["Me 😎", "The birthday star ⭐", "Nobody", "The cake"], answer: 1 },
+    { q: "How many candles should we light for a great friend?", options: ["As many as it takes! 🕯️", "Zero", "Just one", "A million"], answer: 0 }
+  ]
+};
+/* ==================================== */
+
+const $ = id => document.getElementById(id);
+const sections = ["start","lvl1","lvl2","lvl3","lvl4","finale"];
+
+/* setup text */
+$("nameH").textContent = CONFIG.friendName;
+$("subtitle").textContent = CONFIG.subtitle;
+document.title = "Happy Birthday " + CONFIG.friendName + "!";
+$("footer").textContent = "Made with ❤️ by " + CONFIG.yourName;
+
+/* bunting + floating deco */
+const bcolors = ["#ff5fa2","#ffd23f","#35c4ff","#3ddc97","#7c4dff","#ff9a3d"];
+for(let i=0;i<14;i++){const s=document.createElement("span");s.style.background=bcolors[i%bcolors.length];$("bunting").appendChild(s);}
+const emojis = ["🎈","⭐","🎉","🎁","💖","✨","🎂","🍭"];
+for(let i=0;i<18;i++){
+  const e=document.createElement("i");e.textContent=emojis[i%emojis.length];
+  e.style.left=Math.random()*100+"%";e.style.fontSize=(18+Math.random()*26)+"px";
+  e.style.animationDuration=(10+Math.random()*14)+"s";e.style.animationDelay=(-Math.random()*20)+"s";
+  $("deco").appendChild(e);
+}
+
+/* progress */
+const prog = $("progress");
+for(let i=1;i<=4;i++){const d=document.createElement("div");d.className="dot";d.id="dot"+i;d.textContent=i;prog.appendChild(d);}
+function show(id){
+  sections.forEach(s=>$(s).classList.toggle("hidden",s!==id));
+  const n = id.startsWith("lvl") ? +id.slice(3) : (id==="finale"?5:0);
+  for(let i=1;i<=4;i++){const d=$("dot"+i);d.classList.toggle("active",i===n);d.classList.toggle("done",i<n);if(i<n)d.textContent="✓";else d.textContent=i;}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* sound (tiny beeps via WebAudio) */
+let ac;
+function beep(f=600,d=.12){
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;o.type="triangle";
+  g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d);}catch(e){}
+}
+
+/* ---------- Level 1 ---------- */
+let popped=0, balloonTimer;
+function startL1(){
+  popped=0;$("popCount").textContent=0;$("sky").innerHTML="";show("lvl1");
+  balloonTimer=setInterval(spawn,650);
+}
+function spawn(){
+  const b=document.createElement("div");b.className="balloon";
+  b.style.left=(Math.random()*85)+"%";
+  b.style.background=bcolors[Math.floor(Math.random()*bcolors.length)];
+  b.style.animationDuration=(4+Math.random()*3)+"s";
+  b.onclick=()=>{
+    if(b.classList.contains("pop"))return;
+    b.classList.add("pop");beep(500+popped*60);setTimeout(()=>b.remove(),200);
+    popped++;$("popCount").textContent=popped;
+    if(popped>=10){clearInterval(balloonTimer);blast(80);setTimeout(startL2,900);}
+  };
+  b.addEventListener("animationend",()=>b.remove());
+  $("sky").appendChild(b);
+}
+
+/* ---------- Level 2 ---------- */
+let first=null, lock=false, pairs=0;
+function startL2(){
+  pairs=0;first=null;lock=false;$("pairCount").textContent=0;
+  const set=["🎂","🎁","🎈","🍭","⭐","🎶"];
+  const deck=[...set,...set].sort(()=>Math.random()-.5);
+  const g=$("memGrid");g.innerHTML="";
+  deck.forEach(sym=>{
+    const c=document.createElement("div");c.className="mcard";c.dataset.s=sym;
+    c.innerHTML='<div><b class="front">?</b><b class="back">'+sym+'</b></div>';
+    c.onclick=()=>{
+      if(lock||c.classList.contains("flip"))return;
+      c.classList.add("flip");beep(400);
+      if(!first){first=c;return;}
+      if(first.dataset.s===c.dataset.s){
+        first.classList.add("matched");c.classList.add("matched");first=null;pairs++;
+        $("pairCount").textContent=pairs;beep(800);
+        if(pairs===6){blast(80);setTimeout(startL3,1000);}
+      }else{
+        lock=true;const a=first;first=null;
+        setTimeout(()=>{a.classList.remove("flip");c.classList.remove("flip");lock=false;},800);
+      }
+    };
+    g.appendChild(c);
+  });
+  show("lvl2");
+}
+
+/* ---------- Level 3 ---------- */
+let qi=0;
+function startL3(){qi=0;show("lvl3");$("qTotal").textContent=CONFIG.quiz.length;askQ();}
+function askQ(){
+  const q=CONFIG.quiz[qi];$("qNum").textContent=qi+1;$("qText").textContent=q.q;
+  const box=$("qOpts");box.innerHTML="";
+  q.options.forEach((t,i)=>{
+    const o=document.createElement("button");o.className="opt";o.textContent=t;
+    o.onclick=()=>{
+      if(i===q.answer){
+        o.classList.add("right");beep(900);
+        box.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        setTimeout(()=>{qi++;if(qi>=CONFIG.quiz.length){blast(80);startL4();}else askQ();},800);
+      }else{o.classList.add("wrong");beep(200,.2);}
+    };
+    box.appendChild(o);
+  });
+}
+
+/* ---------- Level 4 ---------- */
+let lit=0;
+function startL4(){
+  lit=0;const c=$("candles");c.innerHTML="";$("blowBtn").classList.add("hidden");
+  $("candleTask").textContent="Tap each candle to light it!";
+  for(let i=0;i<5;i++){
+    const d=document.createElement("div");d.className="candle";d.innerHTML='<span class="flame">🔥</span>';
+    d.onclick=()=>{
+      if(d.classList.contains("lit"))return;
+      d.classList.add("lit");beep(500+i*100);lit++;
+      if(lit===5){$("candleTask").textContent="Now make a wish... and blow them out! 🌠";$("blowBtn").classList.remove("hidden");}
+    };
+    c.appendChild(d);
+  }
+  show("lvl4");
+}
+$("blowBtn").onclick=()=>{
+  document.querySelectorAll(".candle").forEach((c,i)=>setTimeout(()=>{c.classList.add("out");beep(300);},i*150));
+  $("blowBtn").classList.add("hidden");
+  setTimeout(finale,1100);
+};
+
+/* ---------- Finale ---------- */
+function finale(){
+  show("finale");
+  const w=$("wishes");w.innerHTML="";
+  CONFIG.wishes.forEach((t,i)=>{
+    const d=document.createElement("div");d.className="wish";d.textContent=t;d.style.animationDelay=(i*0.35)+"s";w.appendChild(d);
+  });
+  $("note").innerHTML="<h3>💌 A note for "+CONFIG.friendName+"</h3>"+escapeHtml(CONFIG.note)+"\n\n— "+escapeHtml(CONFIG.yourName);
+  blast(220);setTimeout(()=>blast(150),900);
+}
+function escapeHtml(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+/* buttons */
+$("startBtn").onclick=startL1;
+$("againBtn").onclick=()=>show("start");
+$("boomBtn").onclick=()=>blast(200);
+
+/* ---------- Confetti ---------- */
+const cv=$("confetti"),cx=cv.getContext("2d");let parts=[],running=false;
+function resize(){cv.width=innerWidth;cv.height=innerHeight;}resize();addEventListener("resize",resize);
+function blast(n=100){
+  for(let i=0;i<n;i++)parts.push({
+    x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*.4,
+    vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,s:5+Math.random()*7,
+    c:bcolors[Math.floor(Math.random()*bcolors.length)],r:Math.random()*6,vr:(Math.random()-.5)*.4,life:140+Math.random()*60
+  });
+  if(!running){running=true;requestAnimationFrame(tick);}
+}
+function tick(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{
+    p.vy+=.3;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--;
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx.restore();
+  });
+  parts=parts.filter(p=>p.life>0&&p.y<cv.height+20);
+  if(parts.length)requestAnimationFrame(tick);else running=false;
+}
+
+show("start");
+</script>
+</body>
+</html>
